@@ -35,11 +35,50 @@ function buildCharts(sample){
 
         Plotly.newPlot("bubble", bubbleData, bubbleLayout);
 
+        let yticks = otuIDs.slice(0, 10).map((otuID) => `OTU ${otuID}`).reverse();
+        let barData = [
+            {
+                y: yticks,
+                x: sampleValues.slice(0, 10).reverse(),
+                text: otuLabels.slice(0, 10).reverse(),
+                type: "bar",
+                orientation: "h"
+        
+
+
+            }
+        ]
+
+        let barLayout = {
+            title: "Top 10 Bacteria Cultures Found",
+            margin: {t: 30, l: 150} 
+        }
+
+        Plotly.newPlot("bar", barData, barLayout);  
+
+
     });
 }
 
-function buildmetadata(sample){
+function buildmetadata(sample){    
+    d3.json("https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json").then((data) =>{
+        let metadata = data.metadata;
 
+        let resultArray = metadata.filter((sampleDictionary) => sampleDictionary.id == sample);
+
+        let result = resultArray[0];
+
+        let PANEL = d3.select("#sample-metadata");  
+
+        PANEL.html("");
+        
+        for(key in result){
+            PANEL.append("h6").text(`${key.toUpperCase()}: ${result[key]}`)
+        }  
+        
+        
+        buildGuage(result.wfreq);
+    })
 }
 
 function int(){
@@ -58,6 +97,11 @@ function int(){
 
     
 
+}
+
+function optionChanged(newSample){
+    buildCharts(newSample);
+    buildmetadata(newSample);
 }
 
 int();
